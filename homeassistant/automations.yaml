@@ -1,0 +1,318 @@
+- id: '1761666915520'
+  alias: Tự động bật/tắt đèn sân theo BH1750
+  description: 'Tự động bật đèn khi trời tối, tắt khi trời sáng. Cho phép tắt thủ
+    công tạm thời, tự bật lại nếu trời vẫn tối.
+
+    '
+  triggers:
+  - entity_id: sensor.esp_outside_do_sang_ngoai_troi
+    below: 20
+    for:
+      seconds: 3
+    id: turn_on
+    trigger: numeric_state
+  - entity_id: sensor.esp_outside_do_sang_ngoai_troi
+    above: 30
+    for:
+      seconds: 3
+    id: turn_off
+    trigger: numeric_state
+  - entity_id: switch.esp_outside_den_chieu_sang
+    to: 'off'
+    for:
+      seconds: 10
+    id: manual_off_timeout
+    trigger: state
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: turn_on
+      sequence:
+      - target:
+          entity_id: switch.esp_outside_den_chieu_sang
+        action: switch.turn_on
+    - conditions:
+      - condition: trigger
+        id: turn_off
+      sequence:
+      - target:
+          entity_id: switch.esp_outside_den_chieu_sang
+        action: switch.turn_off
+    - conditions:
+      - condition: trigger
+        id: manual_off_timeout
+      - condition: numeric_state
+        entity_id: sensor.esp_outside_do_sang_ngoai_troi
+        below: 20
+      sequence:
+      - target:
+          entity_id: switch.esp_outside_den_chieu_sang
+        action: switch.turn_on
+  mode: single
+- id: '1761668263890'
+  alias: Tự động bật/tắt đèn phòng ngủ
+  description: Bật đèn khi có người, tắt khi không còn người
+  triggers:
+  - entity_id: binary_sensor.esp_phongngu_ir_obstacle_sensor
+    to: 'on'
+    id: pir_on
+    trigger: state
+  - entity_id: binary_sensor.esp_phongngu_ir_obstacle_sensor
+    to: 'off'
+    for:
+      seconds: 10
+    id: pir_off
+    trigger: state
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: pir_on
+      sequence:
+      - target:
+          entity_id: switch.esp_phongngu_lightbulb
+        action: switch.turn_on
+    - conditions:
+      - condition: trigger
+        id: pir_off
+      sequence:
+      - target:
+          entity_id: switch.esp_phongngu_lightbulb
+        action: switch.turn_off
+  mode: single
+- id: '1761668495800'
+  alias: Tự động bật/tắt đèn phòng khách
+  description: Bật đèn khi có người, tắt khi không còn người
+  triggers:
+  - entity_id: binary_sensor.esp_phongkhach_ir_obstacle_sensor
+    to: 'on'
+    id: pir_on
+    trigger: state
+  - entity_id: binary_sensor.esp_phongkhach_ir_obstacle_sensor
+    to: 'off'
+    for:
+      seconds: 10
+    id: pir_off
+    trigger: state
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: pir_on
+      sequence:
+      - target:
+          entity_id: switch.esp_phongkhach_light_bulb
+        action: switch.turn_on
+    - conditions:
+      - condition: trigger
+        id: pir_off
+      sequence:
+      - target:
+          entity_id: switch.esp_phongkhach_light_bulb
+        action: switch.turn_off
+  mode: single
+- id: '1761668667409'
+  alias: Tự động bật/tắt đèn phòng bếp
+  description: Bật đèn khi có người, tắt khi không còn người
+  triggers:
+  - entity_id: binary_sensor.esp_nhabep_ir_obstacle_sensor
+    to: 'on'
+    id: pir_on
+    trigger: state
+  - entity_id: binary_sensor.esp_nhabep_ir_obstacle_sensor
+    for:
+      seconds: 10
+    id: pir_off
+    trigger: state
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: pir_on
+      sequence:
+      - target:
+          entity_id: switch.esp_nhabep_light_bulb
+        action: switch.turn_on
+    - conditions:
+      - condition: trigger
+        id: pir_off
+      sequence:
+      - target:
+          entity_id: switch.esp_nhabep_light_bulb
+        action: switch.turn_off
+  mode: single
+- id: '1763533783047'
+  alias: Tự động đóng cửa sổ khi trời mưa
+  description: Tự động đóng cửa sổ nếu mưa, mở lại khi hết mưa
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.esp_outside_giam_sat_mua
+    to: 'on'
+    for:
+      seconds: 3
+    id: rain_detected
+  - trigger: state
+    entity_id: binary_sensor.esp_outside_giam_sat_mua
+    to: 'off'
+    for:
+      seconds: 3
+    id: rain_stopped
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: rain_detected
+      sequence:
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - switch.esp_phongkhach_cua_so
+          - switch.esp_nhabep_cua_so
+          - switch.esp_phongngu_cua_so
+    - conditions:
+      - condition: trigger
+        id: rain_stopped
+      sequence:
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - switch.esp_nhabep_cua_so
+          - switch.esp_phongkhach_cua_so
+          - switch.esp_phongngu_cua_so
+  mode: single
+- id: '1764073831274'
+  alias: Cảnh báo khí gas đến iPhone
+  description: Gửi thông báo đến iPhone khi nồng độ khí gas vượt ngưỡng (%)
+  triggers:
+  - entity_id: sensor.esp_nhabep_gas_sensor
+    above: 80
+    trigger: numeric_state
+  conditions: []
+  actions:
+  - data:
+      title: Cảnh báo khí gas!
+      message: Nồng độ khí gas đã vượt ngưỡng (>20%). Hãy kiểm tra ngay!
+      data:
+        push:
+          badge: 1
+    action: notify.mobile_app_mingming
+  mode: single
+- id: '1764075373708'
+  alias: Cảnh báo phát hiện người nhà bếp
+  description: Gửi thông báo tới iPhone khi phát hiện chuyển động
+  triggers:
+  - entity_id: binary_sensor.esp_nhabep_ir_obstacle_sensor
+    to: 'on'
+    trigger: state
+  conditions: []
+  actions:
+  - data:
+      title: Cảnh báo chuyển động!
+      message: Phát hiện có người trong nhà bếp.
+      data:
+        push:
+          badge: 1
+    action: notify.mobile_app_mingming
+  mode: single
+- id: '1764075720079'
+  alias: Cảnh báo phát hiện người phòng khách
+  description: Gửi thông báo tới iPhone khi phát hiện chuyển động
+  triggers:
+  - entity_id: binary_sensor.esp_phongkhach_ir_obstacle_sensor
+    to: 'on'
+    trigger: state
+  conditions: []
+  actions:
+  - data:
+      title: Cảnh báo chuyển động!
+      message: Phát hiện có người trong phòng khách.
+      data:
+        push:
+          badge: 1
+    action: notify.mobile_app_mingming
+  mode: single
+- id: '1764075786333'
+  alias: Cảnh báo phát hiện người phòng ngủ
+  description: Gửi thông báo tới iPhone khi phát hiện chuyển động
+  triggers:
+  - entity_id: binary_sensor.esp_phongngu_ir_obstacle_sensor
+    to: 'on'
+    trigger: state
+  conditions: []
+  actions:
+  - data:
+      title: Cảnh báo chuyển động!
+      message: Phát hiện có người trong phòng ngủ.
+      data:
+        push:
+          badge: 1
+    action: notify.mobile_app_mingming
+  mode: single
+- id: '1764076107783'
+  alias: Cảnh báo phát hiện người "kiểm tra"
+  description: Gửi thông báo tới iPhone khi YOLO phát hiện người
+  triggers:
+  - entity_id: sensor.ai_camera_person_count
+    above: 0
+    trigger: numeric_state
+  conditions: []
+  actions:
+  - data:
+      title: ⚠️ Phát hiện người!
+      message: '{{ states(''sensor.ai_camera_person_count'') }} người đã được phát
+        hiện.
+
+        '
+    action: notify.mobile_app_mingming
+  mode: single
+- id: '1767019333061'
+  alias: LLM Vision - Phân tích ảnh
+  description: Gửi thông báo sau khi LLM Vision phân tích ảnh
+  triggers:
+  - trigger: time_pattern
+    seconds: /30
+  conditions: []
+  actions:
+  - action: llmvision.image_analyzer
+    response_variable: image_analyze
+    data:
+      remember: false
+      use_memory: false
+      include_filename: true
+      target_width: 1300
+      max_tokens: 3000
+      generate_title: false
+      expose_images: false
+      provider: 01KCEH8K7X29XVHD0BMBH3NTDW
+      message: 'Hãy phân tích hình ảnh từ camera. Nếu có người hoặc hành vi đáng chú
+        ý, hãy mô tả ngắn gọn bằng tiếng Việt.
+
+        '
+      image_entity:
+      - camera.c6n_ba1027458
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: "{{ image_analyze.response_text is defined\n   and (\n     'người'
+          in image_analyze.response_text\n     or 'đáng chú ý' in image_analyze.response_text\n
+          \    or 'ban đêm' in image_analyze.response_text\n   ) }}\n"
+      sequence:
+      - action: notify.mobile_app_mingming
+        data:
+          title: "\U0001F9E0 AI Camera cảnh báo"
+          message: '{{ image_analyze.response_text }}'
+          data:
+            image: /api/camera_proxy/camera.c6n_ba1027458
+            push:
+              sound: default
+              badge: 1
+  mode: restart
