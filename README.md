@@ -41,3 +41,7 @@ The system consists of the following main components:
 - PyCharm
 - Deep Learning Models (YOLO, optional FaceNet/MTCNN)
 - MQTT (Mosquitto Broker)
+# Reference
+1. MQTT_HAOS: https://www.home-assistant.io/integrations/mqtt
+2. YOLO: https://docs.ultralytics.com/models/yolo11/
+3. FaceNet_MTCNN: https://github.com/SARAH-HADDAD/Face-Recognition
