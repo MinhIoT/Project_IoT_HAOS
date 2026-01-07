@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Camera Gateway</title>
+
+    <style>
+        /* ================= GLOBAL ================= */
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Roboto, Arial, sans-serif;
+            background: #f3f6f9;
+            color: #1f2937;
+        }
+
+        header {
+            background: #ffffff;
+            padding: 14px 20px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+            border-bottom: 1px solid #e5e7eb;
+            color: #03a9f4;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* ================= VIDEO AREA ================= */
+        .video-box {
+            display: flex;
+            flex-direction: column;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            background: #000;
+        }
+
+        .live-view {
+            flex: 2;
+            background: #000;
+        }
+
+        .live-view img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ===== CAPTURE RESULT ===== */
+        .capture-result {
+            flex: 1;
+            background: #ffffff;
+            border-top: 1px solid #e5e7eb;
+            padding: 8px;
+        }
+
+        .capture-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #03a9f4;
+            margin-bottom: 6px;
+        }
+
+        .capture-result img {
+            width: 100%;
+            height: 220px;
+            object-fit: contain;
+            background: #000;
+            border-radius: 6px;
+        }
+
+        /* ================= CONTROL ================= */
+        .control-box {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .panel {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 14px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .panel h3 {
+            margin: 0 0 10px;
+            font-size: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 6px;
+            color: #03a9f4;
+        }
+
+        /* ================= BUTTON ================= */
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        button:hover { opacity: 0.9; }
+        button:active { transform: scale(0.97); }
+
+        .btn-ai-on  { background: #22c55e; color: #fff; }
+        .btn-ai-off { background: #ef4444; color: #fff; }
+        .btn-normal { background: #3b82f6; color: #fff; }
+        .btn-yolo   { background: #8b5cf6; color: #fff; }
+        .btn-face   { background: #f59e0b; color: #000; }
+
+        /* ================= STATUS ================= */
+        .status { font-size: 14px; }
+        .on  { color: #16a34a; font-weight: bold; }
+        .off { color: #dc2626; font-weight: bold; }
+
+        /* ================= LOG ================= */
+        .log-box {
+            height: 160px;
+            overflow-y: auto;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 8px;
+            color: #111827;
+        }
+
+        .log-box div {
+            padding: 2px 0;
+            border-bottom: 1px dashed #d1d5db;
+        }
+
+        .log-box div:last-child { border-bottom: none; }
+
+        /* ================= UNKNOWN ================= */
+        .unknown-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+        .unknown-item {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 6px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .unknown-item img {
+            width: 100%;
+            border-radius: 4px;
+            margin-bottom: 6px;
+        }
+
+        .unknown-item input {
+            width: 92%;
+            padding: 5px;
+            margin-bottom: 6px;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+        }
+
+        .unknown-item button {
+            width: 100%;
+            background: #22c55e;
+            color: #fff;
+            font-weight: bold;
+            border-radius: 4px;
+            padding: 6px;
+            cursor: pointer;
+        }
+
+        .small {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>AI Camera Gateway</header>
+
+<div class="container">
+
+    <!-- VIDEO + CAPTURE RESULT -->
+    <div class="video-box">
+        <div class="live-view">
+            <img src="/video_feed" alt="AI Camera Stream">
+        </div>
+
+        <div class="capture-result">
+            <div class="capture-title">Last Capture Result</div>
+            <img id="capture-preview" src="" alt="Capture Result">
+        </div>
+    </div>
+
+    <!-- CONTROL -->
+    <div class="control-box">
+
+        <div class="panel">
+            <h3>AI Control</h3>
+            <div class="buttons">
+                <button class="btn-ai-on" onclick="fetch('/ai_on')">AI ON</button>
+                <button class="btn-ai-off" onclick="fetch('/ai_off')">AI OFF</button>
+            </div>
+            <div class="status" style="margin-top:10px;">
+                AI Status:
+                <span id="ai-status" class="off">OFF</span>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>Capture</h3>
+            <div class="buttons">
+                <button class="btn-normal" onclick="captureAndShow('/capture_normal')">Normal</button>
+                <button class="btn-yolo" onclick="captureAndShow('/capture_yolo')">YOLO</button>
+                <button class="btn-face" onclick="captureAndShow('/capture_face')">Face</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>System / AI Log</h3>
+            <div id="system-log" class="log-box"></div>
+        </div>
+
+        <div class="panel">
+            <h3>Capture Log</h3>
+            <div id="capture-log" class="log-box"></div>
+        </div>
+
+        <div class="panel">
+            <h3>Unknown Faces</h3>
+            <div id="unknown-gallery" class="unknown-grid"></div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let isTypingUnknown = false;
+    let lastGroupCount = -1;
+
+    function showCaptureResult(url) {
+        const img = document.getElementById("capture-preview");
+        img.src = url + "?t=" + Date.now(); // chống cache
+    }
+
+    function captureAndShow(endpoint) {
+        fetch(endpoint)
+            .then(r => r.json())
+            .then(d => {
+                if (d.image_url) {
+                    showCaptureResult(d.image_url);
+                }
+            });
+    }
+
+    function updateLogs(id, logs) {
+        const box = document.getElementById(id);
+        box.innerHTML = "";
+        logs.forEach(l => {
+            const d = document.createElement("div");
+            d.textContent = l;
+            box.appendChild(d);
+        });
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function pollStatus() {
+        fetch("/ai_status")
+            .then(r => r.json())
+            .then(d => {
+                const s = document.getElementById("ai-status");
+                s.textContent = d.ai_mode ? "ON" : "OFF";
+                s.className = d.ai_mode ? "on" : "off";
+                updateLogs("system-log", d.system_logs || []);
+                updateLogs("capture-log", d.capture_logs || []);
+            });
+    }
+
+    function loadUnknownFaces() {
+        if (isTypingUnknown) return;
+
+        fetch("/unknown_faces")
+            .then(r => r.json())
+            .then(d => {
+                if (!d.groups || d.groups.length === lastGroupCount) return;
+                lastGroupCount = d.groups.length;
+
+                const g = document.getElementById("unknown-gallery");
+                g.innerHTML = "";
+
+                if (d.groups.length === 0) {
+                    g.innerHTML = "<div class='small'>No unknown faces</div>";
+                    return;
+                }
+
+                d.groups.forEach(group => {
+                    const div = document.createElement("div");
+                    div.className = "unknown-item";
+
+                    div.innerHTML = `
+                        <img src="${group.preview}">
+                        <div class="small">${group.count} images</div>
+                        <input placeholder="Enter name">
+                        <button>Assign</button>
+                    `;
+
+                    const input = div.querySelector("input");
+                    input.onfocus = () => isTypingUnknown = true;
+                    input.onblur  = () => isTypingUnknown = false;
+
+                    div.querySelector("button").onclick = () => {
+                        const name = input.value.trim();
+                        if (!name) return alert("Enter name");
+
+                        fetch("/assign_face", {
+                            method: "POST",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify({
+                                name,
+                                files: group.files.map(f => f.filename)
+                            })
+                        }).then(() => {
+                            isTypingUnknown = false;
+                            lastGroupCount = -1;
+                            loadUnknownFaces();
+                        });
+                    };
+
+                    g.appendChild(div);
+                });
+            });
+    }
+
+    setInterval(pollStatus, 1000);
+    setInterval(loadUnknownFaces, 2000);
+    pollStatus();
+    loadUnknownFaces();
+</script>
+
+</body>
+</html>

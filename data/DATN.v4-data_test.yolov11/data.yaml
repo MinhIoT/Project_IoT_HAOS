@@ -1,0 +1,13 @@
+train: C:\\Users\\tvmin\\PycharmProjects\\DATN_Final\\data\\DATN.v4-data_test.yolov11\\train\\images
+val: C:\\Users\\tvmin\\PycharmProjects\\DATN_Final\\data\\DATN.v4-data_test.yolov11\\valid\\images
+test: C:\Users\\tvmin\\PycharmProjects\\DATN_Final\\data\\DATN.v4-data_test.yolov11\\test\\images
+
+nc: 1
+names: ['people']
+
+roboflow:
+  workspace: imagehaos
+  project: datn-j0cma
+  version: 4
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/imagehaos/datn-j0cma/dataset/4

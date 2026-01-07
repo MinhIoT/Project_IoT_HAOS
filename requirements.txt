@@ -1,0 +1,11 @@
+torch>=2.0
+torchvision>=0.15
+ultralytics>=8.0.0
+facenet-pytorch>=2.5
+opencv-python>=4.8
+Pillow>=9.0
+flask>=2.2
+python-dotenv>=1.0
+paho-mqtt>=1.6
+numpy>=1.23
+scipy>=1.10
