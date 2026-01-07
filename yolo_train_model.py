@@ -6,7 +6,7 @@ def main():
 
     # Train model
     train_results = model.train(
-        data="C:/Users/tvmin/PycharmProjects/DATN_Final/data/DATN.v4-data_test.yolov11/data.yaml",
+        data="data.yaml",
         epochs=100,            # số vòng lặp huấn luyện
         imgsz=640,             # kích thước ảnh đầu vào
         device=0,              # GPU đầu tiên, CPU = "cpu"
