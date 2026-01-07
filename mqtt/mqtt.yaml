@@ -1,0 +1,57 @@
+sensor:
+  - name: "AI Camera YOLO Image"
+    unique_id: ai_camera_yolo_image
+    state_topic: "home/camera/yolo"
+    value_template: "{{ value_json.image_url | default('') }}"
+
+  - name: "AI Camera Person Count"
+    unique_id: ai_camera_person_count
+    state_topic: "home/camera/yolo"
+    value_template: >
+      {{ value_json.detections
+         | default([])
+         | selectattr('class_name', 'equalto', 'person')
+         | list
+         | length }}
+    icon: mdi:account-group
+
+  - name: "AI Camera Detected Objects"
+    unique_id: ai_camera_detected_objects
+    state_topic: "home/camera/yolo"
+    value_template: >
+      {{ value_json.detections
+         | default([])
+         | map(attribute='class_name')
+         | unique
+         | join(', ')
+         | default('None') }}
+    icon: mdi:shape-outline
+
+  - name: "AI Camera Face Image"
+    unique_id: ai_camera_face_image
+    state_topic: "home/camera/face"
+    value_template: "{{ value_json.image_url | default('') }}"
+
+  - name: "AI Camera Recognized Persons"
+    unique_id: ai_camera_recognized_persons
+    state_topic: "home/camera/face"
+    value_template: >
+      {{ value_json.faces
+         | default([])
+         | map(attribute='name')
+         | unique
+         | join(', ')
+         | default('Không phát hiện') }}
+    icon: mdi:account-multiple
+
+binary_sensor:
+  - name: "AI Camera Unknown Detected"
+    unique_id: ai_camera_unknown_detected
+    state_topic: "home/camera/face"
+    value_template: >
+      {{ value_json.faces
+         | default([])
+         | selectattr('name', 'equalto', 'Unknown')
+         | list
+         | length > 0 }}
+    device_class: motion
